@@ -5,7 +5,9 @@ import it.unibo.bank.api.BankAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Assertions;
 
 public class TestStrictBankAccount {
 
@@ -20,7 +22,8 @@ public class TestStrictBankAccount {
      */
     @BeforeEach
     public void setUp() {
-        fail("To be implemented");
+        this.mRossi = new AccountHolder("Mario", "Rossi", 1);
+        this.bankAccount = new StrictBankAccount(mRossi, INITIAL_AMOUNT);
     }
 
     /**
@@ -28,7 +31,9 @@ public class TestStrictBankAccount {
      */
     @Test
     public void testInitialization() {
-        fail("To be implemented");
+        assertEquals(INITIAL_AMOUNT, this.bankAccount.getBalance());
+        assertEquals(0, this.bankAccount.getTransactionsCount());
+        assertEquals(this.mRossi, this.bankAccount.getAccountHolder());
     }
 
     /**
@@ -36,7 +41,13 @@ public class TestStrictBankAccount {
      */
     @Test
     public void testManagementFees() {
-        fail("To be implemented");
+        assertEquals(0, this.bankAccount.getTransactionsCount());
+        this.bankAccount.deposit(this.mRossi.getUserID(), INITIAL_AMOUNT);
+        assertEquals(INITIAL_AMOUNT*2, this.bankAccount.getBalance());
+        assertEquals(1, this.bankAccount.getTransactionsCount());
+        this.bankAccount.chargeManagementFees(this.mRossi.getUserID());
+        assertEquals(0, this.bankAccount.getTransactionsCount());
+        assertEquals(INITIAL_AMOUNT*2-5.1, this.bankAccount.getBalance());
     }
 
     /**
@@ -44,7 +55,12 @@ public class TestStrictBankAccount {
      */
     @Test
     public void testNegativeWithdraw() {
-        fail("To be implemented");
+        try {
+            bankAccount.withdraw(mRossi.getUserID(), -INITIAL_AMOUNT);
+            Assertions.fail("An impossible negative withdrawal has occurred");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Cannot withdraw a negative amount", e.getMessage());
+        }
     }
 
     /**
@@ -52,6 +68,11 @@ public class TestStrictBankAccount {
      */
     @Test
     public void testWithdrawingTooMuch() {
-        fail("To be implemented");
+        try {
+            bankAccount.withdraw(mRossi.getUserID(), INITIAL_AMOUNT*10);
+            Assertions.fail("A withdrawal of more money than present on the account has occurred");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Insufficient balance", e.getMessage());
+        }
     }
 }
